@@ -82,7 +82,7 @@ GEM
     multi_json (1.13.1)
     nokogiri (1.8.2)
       mini_portile2 (~> 2.3.0)
-    rack (1.6.8)
+    rack (1.6.9)
     rack-test (0.6.3)
       rack (>= 1.0)
     rails (4.2.6)
@@ -163,6 +163,7 @@ DEPENDENCIES
   coffee-rails (~> 4.1.0)
   jbuilder (~> 2.0)
   jquery-rails
+  mini_portile2
   nokogiri
   rails (= 4.2.6)
   sass-rails (~> 5.0)
