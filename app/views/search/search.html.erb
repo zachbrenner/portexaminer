@@ -3,16 +3,25 @@
 	<thead>
 		<tr>
 			<th scope="col">#</th>
-			<th scope="col">Title</th>
-			<th scope="col">Blurb</th>
+		<!--	<th scope="col">Title</th> -->
+			<th scope="col">Shipper</th>
+			<th scope="col">Cosignee</th>
+			<th scope="col">Origin</th>
+			<th scope="col">Destination</th>
+			<th scope="col">Date</th>
 		</tr>
 	</thead>
 	<tbody>
-		<% @chart.each do |link, blurb| %>
+		<% @chart.each do |key, info| %>
 			<tr>
-				<th scope="row"><%="#{link[1]} #{link[0]}" %> </th>
-				<td><a href= <%= link[2] %> target="_blank"><%=link[2]%></a></td>
-				<td><%= blurb %></td>
+				<th scope="row"><a href=<%= key[2] %> target ="_blank"><%="#{key[1]} #{key[0]}" %> </a> </th>
+			<!--	<td><a href= <%= key[2] %> target="_blank"><%=key[2]%></a></td> -->
+				<td><%= info[0] %></td>
+				<td><%= info[1] %></td>
+				<td><%= info[2] %></td>
+				<td><%= info[3] %></td>
+				<td><%= info[4] %></td>
+
 			</tr>
 		
 
