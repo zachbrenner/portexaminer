@@ -26,8 +26,8 @@ class SearchController < ApplicationController
 
 		company_info = blurb.split("aboard")[0].split("shipped to")
 		location_info = blurb.split("aboard")[1]
-		if location_info.string_between_markers("loaded at","and") != nil 
-			origin = location_info.string_between_markers("loaded at","and")
+		if location_info.string_between_markers("loaded at"," and ") != nil 
+			origin = location_info.string_between_markers("loaded at"," and ")
 		else
 			origin = "None Given"
 		end
