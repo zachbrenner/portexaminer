@@ -13,7 +13,7 @@ class SearchController < ApplicationController
 
 	doc.css("div[class=search-item]").each do |item|
 		blurb = item.css('div.blurb').children.text
-		#next if blurb.include?("China") or blurb.include?("India")
+		next if blurb.include?("China") or blurb.include?("India")
 		title = item.css("div[class=title]").children.children.attribute('href').text[2..-1]
 		@chart[[@count,keyword,"http://" + title]] = blurb
 		#p title = item.css("div[class=title]")
