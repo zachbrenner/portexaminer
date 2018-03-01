@@ -13,9 +13,17 @@ class SearchController < ApplicationController
 
 	doc.css("div[class=search-item]").each do |item|
 		blurb = item.css('div.blurb').children.text
-		next if blurb.include?("China") or blurb.include?("India")
+		#next if blurb.any? { |country| ["China","India","Hong Kong","Singapore","Goose Island","South Korea","Virgin Islands"].include?(country) }
+		excluded_countries = ["China","India","Hong Kong","Singapore","Goose Island","South Korea","Virgin Islands"]
+		next if excluded_countries.any? { |country| blurb.include?(country)}
 		title = item.css("div[class=title]").children.children.attribute('href').text[2..-1]
-		@chart[[@count,keyword,"http://" + title]] = blurb
+		
+		company_info = blurb.split("aboard")[0].split("shipped to")
+		p location_info = blurb.split("loaded at")[1].split(".")[0]
+		p origin = location_info.split(" and ")[0]
+		p date = location_info.split("on")[location_info.split("on").length-1].strip
+		p destination = location_info.string_between_markers("discharged at"," on ").strip
+		@chart[[@count,keyword,"http://" + title]] = company_info + [origin,destination,date]
 		#p title = item.css("div[class=title]")
 		#p title.attribute("div")
 		@count += 1
@@ -45,5 +53,10 @@ class SearchController < ApplicationController
 		end
   	end
   #	chart
+  end
+end
+class String
+  def string_between_markers marker1, marker2
+    self[/#{Regexp.escape(marker1)}(.*?)#{Regexp.escape(marker2)}/m, 1]
   end
 end
