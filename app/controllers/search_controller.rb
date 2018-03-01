@@ -40,7 +40,6 @@ class SearchController < ApplicationController
 		@chart.each do |key, value|
 			if company_info[1] == value[1]
 				repeat = true
-				puts "repeat"
 				break
 			end
 		end
