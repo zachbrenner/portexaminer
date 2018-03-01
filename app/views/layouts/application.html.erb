@@ -15,12 +15,19 @@
       		<a class="navbar-brand" href="/">Port Examiner Collator</a>
     	</div>
     	<ul class="nav navbar-nav">
-      		<li class="active"><a href="#">Home</a></li>
+      		<li class="active"><a href="/">Home</a></li>
 
     </ul>
   </div>
 </nav>
 <div class="container">
+  <h3>Search for multiple keywords at once</h3>
+<%= form_tag("/search", method: "get", class: "form-group") do %>
+  <%= label_tag(:keywords,"Enter search terms separated by commas") %>
+  <%= text_field_tag(:keywords,"", class: "form-control") %>
+
+  <%= submit_tag("Search", class: "btn btn-default") %>
+<% end %> 
 	<%= yield %>
 </div>
 
