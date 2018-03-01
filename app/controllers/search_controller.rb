@@ -18,11 +18,21 @@ class SearchController < ApplicationController
 		next if excluded_countries.any? { |country| blurb.include?(country)}
 		title = item.css("div[class=title]").children.children.attribute('href').text[2..-1]
 		
-		company_info = blurb.split("aboard")[0].split("shipped to")
-		p location_info = blurb.split("loaded at")[1].split(".")[0]
-		p origin = location_info.split(" and ")[0]
-		p date = location_info.split("on")[location_info.split("on").length-1].strip
-		p destination = location_info.string_between_markers("discharged at"," on ").strip
+		p company_info = blurb.split("aboard")[0].split("shipped to")
+		location_info = blurb.split("loaded at")[1].split(".")[0]
+		origin = location_info.split(" and ")[0]
+		date = location_info.split("on")[location_info.split("on").length-1].strip
+		destination = location_info.string_between_markers("discharged at"," on ").strip
+		repeat = false
+		@chart.each do |key, value|
+			if company_info[1] == value[1]
+				repeat = true
+				puts "repeat"
+				break
+			end
+		end
+		next if repeat == true
+
 		@chart[[@count,keyword,"http://" + title]] = company_info + [origin,destination,date]
 		#p title = item.css("div[class=title]")
 		#p title.attribute("div")
