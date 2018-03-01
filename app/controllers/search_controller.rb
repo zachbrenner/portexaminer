@@ -1,5 +1,6 @@
 require 'open-uri'
 class SearchController < ApplicationController
+
   def index
   	
   end
@@ -9,20 +10,32 @@ class SearchController < ApplicationController
 
   end	
 
+  def parse_blurb(blurb)
+
+  end
+
   def process_page(keyword,doc)
 
 	doc.css("div[class=search-item]").each do |item|
 		blurb = item.css('div.blurb').children.text
 		#next if blurb.any? { |country| ["China","India","Hong Kong","Singapore","Goose Island","South Korea","Virgin Islands"].include?(country) }
-		excluded_countries = ["China","India","Hong Kong","Singapore","Goose Island","South Korea","Virgin Islands"]
+		excluded_countries = ["China","India","Hong Kong","Singapore","Goose Island","South Korea","Virgin Islands","Asia"]
 		next if excluded_countries.any? { |country| blurb.include?(country)}
 		title = item.css("div[class=title]").children.children.attribute('href').text[2..-1]
-		
-		p company_info = blurb.split("aboard")[0].split("shipped to")
-		location_info = blurb.split("loaded at")[1].split(".")[0]
-		origin = location_info.split(" and ")[0]
-		date = location_info.split("on")[location_info.split("on").length-1].strip
+
+
+		company_info = blurb.split("aboard")[0].split("shipped to")
+		location_info = blurb.split("aboard")[1]
+		if location_info.string_between_markers("loaded at","and") != nil 
+			origin = location_info.string_between_markers("loaded at","and")
+		else
+			origin = "None Given"
+		end
+		date = location_info.string_between_markers(" on ",". The cargo")
 		destination = location_info.string_between_markers("discharged at"," on ").strip
+		
+
+
 		repeat = false
 		@chart.each do |key, value|
 			if company_info[1] == value[1]
