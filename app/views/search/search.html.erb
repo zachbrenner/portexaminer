@@ -1,8 +1,8 @@
-<h3>we searched for <%= @keywords.join(", ") %></h1>
+<h3>we searched for <%= "#{@keywords.join(", ")} in #{@t} seconds" %></h1>
 <table class="table">
 	<thead>
 		<tr>
-			<th scope="col">#</th>
+			<th scope="col">Keyword</th>
 		<!--	<th scope="col">Title</th> -->
 			<th scope="col">Shipper</th>
 			<th scope="col">Cosignee</th>
@@ -12,18 +12,24 @@
 		</tr>
 	</thead>
 	<tbody>
-		<% @chart.each do |key, info| %>
+		<%@count = 1; previous_keyword = "" %>
+		<% @chart.each do |key, shipment_set| %>
+			<%shipment = shipment_set.first %>
+			<%if previous_keyword != shipment.keyword%>
+				<%previous_keyword = shipment.keyword%>
+				<%@count = 1 %>
+			<%end%>
 			<tr>
-				<th scope="row"><a href=<%= key[2] %> target ="_blank"><%="#{key[1]} #{key[0]}" %> </a> </th>
+				<th scope="row"><a href=<%= shipment.url %> target ="_blank"><%="#{shipment.keyword} #{@count}" %> </a> </th>
 			<!--	<td><a href= <%= key[2] %> target="_blank"><%=key[2]%></a></td> -->
-				<td><%= info[0] %></td>
-				<td><a href=<%="https://www.google.com/search?q=#{CGI.escape(info[1])}"%> target="_blank"><%= info[1] %></a></td>
-				<td><%= info[2] %></td>
-				<td><%= info[3] %></td>
-				<td><%= info[4] %></td>
-
+				<td><%= shipment.shipper %></td>
+				<td><a href=<%="https://www.google.com/search?q=#{CGI.escape(key)}"%> target="_blank"><%= key %></a></td>
+				<td><%= shipment.origin %></td>
+				<td><%= shipment.destination %></td>
+				<td><%= shipment.date %></td>
+				
 			</tr>
-		
+			<% @count +=1 %>
 
 		<% end %>
 
