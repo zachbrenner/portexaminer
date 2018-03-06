@@ -17,7 +17,7 @@
 				<th scope="row"><a href=<%= key[2] %> target ="_blank"><%="#{key[1]} #{key[0]}" %> </a> </th>
 			<!--	<td><a href= <%= key[2] %> target="_blank"><%=key[2]%></a></td> -->
 				<td><%= info[0] %></td>
-				<td><%= info[1] %></td>
+				<td><a href=<%="https://www.google.com/search?q=#{CGI.escape(info[1])}"%> target="_blank"><%= info[1] %></a></td>
 				<td><%= info[2] %></td>
 				<td><%= info[3] %></td>
 				<td><%= info[4] %></td>
