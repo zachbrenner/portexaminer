@@ -19,7 +19,7 @@ class SearchController < ApplicationController
 	doc.css("div[class=search-item]").each do |item|
 		blurb = item.css('div.blurb').children.text
 		#next if blurb.any? { |country| ["China","India","Hong Kong","Singapore","Goose Island","South Korea","Virgin Islands"].include?(country) }
-		excluded_countries = ["China","India","Hong Kong","Singapore","Goose Island","South Korea","Virgin Islands","Asia"]
+		excluded_countries = ["China","India","Hong Kong","Singapore","Goose Island","South Korea","Virgin Islands","Asia","Panama"]
 		next if excluded_countries.any? { |country| blurb.include?(country)}
 		title = item.css("div[class=title]").children.children.attribute('href').text[2..-1]
 
