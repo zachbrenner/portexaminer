@@ -31,7 +31,7 @@ class SearchController < ApplicationController
 		else
 			origin = "None Given"
 		end
-		puts location_info
+
 		date = location_info.string_between_markers(" on ",".")
 		destination = location_info.string_between_markers("discharged at"," on ")
 		
