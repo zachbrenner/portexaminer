@@ -23,8 +23,9 @@ class SearchController < ApplicationController
 
   def process_page(keyword,page)
   	@chart_element = {}
-  	puts "#{keyword} #{page}"
+  	puts "trying to fet #{keyword} #{page}"
   	doc = get_page("http://portexaminer.com/search.php?search-field-1=shipper&search-term-1=#{keyword}&p=#{page}")
+	puts "Got #{keyword} #{page}, parsing"
 	doc.css("div[class=search-item]").each do |item|
 		blurb = item.css('div.blurb').children.text
 		#next if blurb.any? { |country| ["China","India","Hong Kong","Singapore","Goose Island","South Korea","Virgin Islands"].include?(country) }
@@ -34,15 +35,24 @@ class SearchController < ApplicationController
 
 
 		company_info = blurb.split("aboard")[0].split("shipped to")
+		
 		location_info = blurb.string_between_markers("aboard","The cargo")
-		if location_info.string_between_markers("loaded at"," and ") != nil 
-			origin = location_info.string_between_markers("loaded at"," and ")
+		p location_info
+		if location_info == nil
+			origin = "N/A"
+			date = "N/A"
+			destination = "N/A"
 		else
-			origin = "None Given"
+			if location_info.string_between_markers("loaded at"," and ") != nil 
+				origin = location_info.string_between_markers("loaded at"," and ")
+			else
+				origin = "None Given"
+			end
+			date = location_info.string_between_markers(" on ",".")
+			destination = location_info.string_between_markers("discharged at"," on ")
+
 		end
 
-		date = location_info.string_between_markers(" on ",".")
-		destination = location_info.string_between_markers("discharged at"," on ")
 		
 
 
@@ -62,6 +72,7 @@ class SearchController < ApplicationController
 		@count += 1
 		#puts item
 		end
+		puts "parsing #{keyword} #{page} done"
 		@chart_element
   end
 
@@ -78,14 +89,14 @@ class SearchController < ApplicationController
   		keyword.strip!
 		doc = get_page("http://portexaminer.com/search.php?search-field-1=shipper&search-term-1=#{keyword}")
 		@pages << [keyword,1]
-		puts "Processing #{keyword}"
+		puts "Got first page and page count for #{keyword}"
 		#puts doc.css("div[class=search-item]").css("div[class=blurb]")
 		#process_page(keyword, doc)
 		if doc.css("div.pager").xpath('p')[0] != nil
 			number_of_pages = doc.css("div.pager").xpath('p')[0].text.split(" ")[3].to_i
 			
 			(2..number_of_pages).each do |page|
-				puts "Processing #{keyword} page #{page}"
+				puts "Inserting #{keyword} page #{page} into list to scrap"
 				#page_doc = Nokogiri::HTML(open("http://portexaminer.com/search.php?search-field-1=shipper&search-term-1=#{keyword}&p=#{page}"))
 				@pages << [keyword,page]
 				#process_page(keyword,page_doc)
