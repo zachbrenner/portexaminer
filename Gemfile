@@ -7,6 +7,7 @@ gem 'nokogiri'
 gem 'mini_portile2'
 gem 'bootstrap-sass'
 gem 'unicorn'
+gem 'rack-proxy'
 # Use sqlite3 as the database for Active Record
 gem 'sqlite3'
 #gem 'pg','0.15'

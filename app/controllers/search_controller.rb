@@ -1,5 +1,6 @@
 require 'open-uri'
 require 'thread'
+require 'csv'
 class SearchController < ApplicationController
 	Shipment = Struct.new(:keyword, :count,:url, :shipper, :consignee, :origin, :destination, :date)
   def index
@@ -10,7 +11,19 @@ class SearchController < ApplicationController
   	@keywords = params[:keywords].split(",").reverse
   	@chart = scrape_results(@keywords)
   	@t = Time.now - tn
+	@file_name = (Time.new.strftime("%I:%M%p %m-%d-%Y-") + rand(1000..9999).to_s + ".csv")
+	generate_csv(@file_name)
   end	
+
+  def generate_csv(file_name)
+	CSV.open("#{Rails.root}/public/#{file_name}","wb") do |csv|
+		csv << ["Cosignee","Origin","Destination"] 
+		@chart.each do |consignee, shipment_set|
+			p shipment_set.first.origin, shipment_set.first.destination
+			csv << [consignee, shipment_set.first.origin.to_s, shipment_set.first.destination.to_s] 
+		end
+  	end
+  end
 
   def get_page(url)
   	begin
@@ -20,6 +33,8 @@ class SearchController < ApplicationController
   	end
   	page
   end
+	
+
 
   def process_page(keyword,page)
   	@chart_element = {}
@@ -32,7 +47,6 @@ class SearchController < ApplicationController
 		excluded_countries = ["China","India","Hong Kong","Singapore","Goose Island","South Korea","Virgin Islands","Asia","Panama"]
 		next if excluded_countries.any? { |country| blurb.include?(country)}
 		title = item.css("div[class=title]").children.children.attribute('href').text[2..-1]
-
 
 		company_info = blurb.split("aboard")[0].split("shipped to")
 		
@@ -64,8 +78,7 @@ class SearchController < ApplicationController
 		#	end
 		#end
 		#next if repeat == true
-
-		@chart_element["#{keyword}#{@count}"] = Shipment.new(keyword,@count,"http://#{title}",company_info[0],company_info[1],origin,destination,date)
+		@chart_element["#{keyword}#{@count}"] = Shipment.new(keyword,@count,title.sub!("portexaminer.com",''),company_info[0],company_info[1],origin,destination,date)
 		
 		#p title = item.css("div[class=title]")
 		#p title.attribute("div")
