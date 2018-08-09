@@ -9,7 +9,8 @@ Rails.application.routes.draw do
 
    get 'search' => 'search#search'
 
-   get '*port_examiner' => 'snakes#index' 
+   get 'port_examiner/' => 'snakes#index' 
+   get 'port_examiner/*all' => 'snakes#index' 
 
   # Example of regular route:
   #   get 'products/:id' => 'catalog#view'

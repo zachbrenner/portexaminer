@@ -1,5 +1,7 @@
-<%= link_to 'Download CSV', "/#{@file_name}" %>
-<h3>we searched for <%= "#{@keywords.join(", ")} in #{@t} seconds" %></h1>
+<%= link_to 'Download CSV', "/collator/#{@file_name}" %>
+<p>Searched for <%= "#{@keywords.join(", ")} in #{@t} seconds" %></p>
+<p><%= "Subsidiaries were found and removed" if @removed_subsidiaries %></p>
+<p><%= "No subsidiaries were found" if not @removed_subsidiaries %></p>
 <table class="table">
 	<thead>
 		<tr>
@@ -21,7 +23,7 @@
 				<%@count = 1 %>
 			<%end%>
 			<tr>
-				<th scope="row"><a href=<%= shipment.url %> target ="_blank"><%="#{shipment.keyword} #{@count}" %> </a> </th>
+				<th scope="row"><a href=<%= "/collator/port_examiner#{shipment.url}" %> target ="_blank"><%="#{shipment.keyword} #{@count}" %> </a> </th>
 			<!--	<td><a href= <%= key[2] %> target="_blank"><%=key[2]%></a></td> -->
 				<td><%= shipment.shipper %></td>
 				<td><a href=<%="https://www.google.com/search?q=#{CGI.escape(key)}"%> target="_blank"><%= key %></a></td>
