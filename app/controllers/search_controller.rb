@@ -10,15 +10,23 @@ class SearchController < ApplicationController
   	tn = Time.now
   	@keywords = params[:keywords].split(",").reverse
 	puts params
-	@was_checked = false
+	@remove_subs_was_checked = false
 	@removed_subsidiaries = false
 	if params[:remove_subsidiaries]
-		@was_checked = true
+		@remove_subs_was_checked = true
 	else
-		@was_checked = false
+		@remove_subs_was_checked = false
 	end
 	puts "Searching for #{@keywords}"
-  	@chart = scrape_results(@keywords)
+  	
+  	
+  	if params[:deep_search]
+  		@chart = deep_search(@keywords)
+  	else
+  		@chart = scrape_results(params[:search_type],@keywords)	
+  	end
+
+
   	@t = Time.now - tn
 	@file_name = (Time.new.strftime("%I:%M%p %m-%d-%Y-") + rand(1000..9999).to_s + ".csv")
 	generate_csv(@file_name)
@@ -33,6 +41,27 @@ class SearchController < ApplicationController
   	end
   end
 
+  def deep_search(keywords)
+  	consignees = []
+  	shippers = []
+  	first_pass = scrape_results('shipper',keywords)
+  	first_pass.each do |consignee, shipment|
+  		consignees << consignee
+  	end
+  	puts "About to search for shipments to #{consignees}"
+  	second_pass = scrape_results('consignee',consignees)
+  	p second_pass
+  	second_pass.each_value do |shipment|
+  		shippers << shipment.first.shipper
+  		puts "adding shipper: #{shipment.first.shipper} to list"
+  	end
+  	shippers = shippers.uniq
+  	chart = scrape_results('shipper',shippers)
+  	
+  	return chart
+  end
+
+ 
   def get_page(url)
   	begin
   		page = Nokogiri::HTML(open(url))
@@ -44,12 +73,11 @@ class SearchController < ApplicationController
 	
 
 
-  def process_page(keyword,page)
+  def process_page(search_type,keyword,page)
   	@chart_element = {}
-  	doc = get_page("https://portexaminer.com/search.php?search-field-1=shipper&search-term-1=#{keyword}&p=#{page}")
+  	doc = get_page("https://portexaminer.com/search.php?search-field-1=#{search_type}&search-term-1=#{keyword}&p=#{page}")
 	doc.css("div[class=search-item]").each do |item|
 		blurb = item.css('div.blurb').children.text
-		puts blurb
 		excluded_countries = ["China","India","Hong Kong","Singapore","Goose Island","South Korea","Virgin Islands","Asia","Panama"]
 		next if excluded_countries.any? { |country| blurb.include?(country)}
 		title = item.css('div').css('h2').css('a').attribute('href').text[2..-1]
@@ -83,17 +111,19 @@ class SearchController < ApplicationController
   end
 
 
-  def scrape_results(keywords)
+  def scrape_results(search_type,keywords)
   	chart = {}
   	@count = 1
   	@pages = []
   	threads = []
   	chart_mutex = Mutex.new
 
-  	results = keywords.each do |keyword|
+  	results = keywords.each do |word|
+  		puts "searching for #{word}"
   		@count = 1
+  		keyword = word.dup
   		keyword.strip!
-		doc = get_page("https://portexaminer.com/search.php?search-field-1=shipper&search-term-1=#{keyword}")
+		doc = get_page("https://portexaminer.com/search.php?search-field-1=#{search_type}&search-term-1=#{keyword}")
 		@pages << [keyword,1]
 	#	puts "Got first page and page count for #{keyword}"
 		#puts doc.css("div[class=search-item]").css("div[class=blurb]")
@@ -104,6 +134,7 @@ class SearchController < ApplicationController
 			(2..number_of_pages).each do |page|
 				@pages << [keyword,page]
 			end
+			puts @pages.last
 			
 		end
   	end
@@ -112,12 +143,14 @@ class SearchController < ApplicationController
   	thread_count.times.map {
   		Thread.new(@pages,chart) do |pages, chart|
   			while page = chart_mutex.synchronize { pages.pop }
-  				chart_element = process_page(page[0],page[1])
+  				puts 
+
+  				chart_element = process_page(search_type,page[0],page[1])
   				chart_mutex.synchronize { chart.merge!(chart_element) }
   			end
   		end
   	}.each(&:join)
-
+  	puts "finished that one"
 	if params[:remove_subsidiaries]
 		chart.each do |key, shipment|
 			#puts key, shipment.consignee,shipment.shipper
@@ -138,6 +171,8 @@ class SearchController < ApplicationController
 
   shipments_by_consignees
   end
+
+
 end
 class String
   def string_between_markers marker1, marker2

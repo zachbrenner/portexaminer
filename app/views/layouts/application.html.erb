@@ -23,16 +23,20 @@
 </nav>
 <div class="container">
   <h3>Search for multiple keywords at once</h3>
-<%= form_tag("/collator/search", method: "get", class: "form-group") do %>
-  <%= label_tag(:keywords,"Enter search terms separated by commas") %>
-  <%= text_field_tag(:keywords,"#{params[:keywords]}", class: "form-control") %>
-  <%= submit_tag("Search", class: "btn btn-default") %><br>
-  <%= check_box_tag(:remove_subsidiaries,"", checked = @was_checked ) %>
-  <%= label_tag(:remove_subsidiaries, "Remove companies shipping to their subsidiaries") %>
-
+    <div class="row">
+      <%= form_tag("/collator/search", method: "get", class: "form-group") do %>
+      <%= label_tag(:keywords,"Enter search terms separated by commas") %>
+      <%= select_tag(:search_type, options_for_select([['Supplier Name','shipper'],['Importer Name','consignee'],['Cargo Description','cargo'],['Carton Marks','marks']],1), class: "form-control") %>
+      <%= text_field_tag(:keywords,"#{params[:keywords]}", class: "form-control") %>
+      <%= submit_tag("Search", class: "btn btn-default") %><br>
+      <%= check_box_tag(:remove_subsidiaries,"", checked = @remove_subs_was_checked ) %>
+      <%= label_tag(:remove_subsidiaries, "Remove companies shipping to their subsidiaries") %> <br>
+      <%= check_box_tag(:deep_search,"", checked = false) %>
+      <%= label_tag(:deep_search, "Run deep search (may take up to 10 minutes to complete) ") %>
 <% end %> 
 	<%= yield %>
 </div>
 
 </body>
 </html>
+
