@@ -1,4 +1,6 @@
 Rails.application.routes.draw do
+scope "collator" do
+
   get 'search/hello'
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
@@ -11,6 +13,8 @@ Rails.application.routes.draw do
 
    get 'port_examiner/' => 'snakes#index' 
    get 'port_examiner/*all' => 'snakes#index' 
+
+end
 
   # Example of regular route:
   #   get 'products/:id' => 'catalog#view'

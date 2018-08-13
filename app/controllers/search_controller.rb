@@ -24,7 +24,8 @@ class SearchController < ApplicationController
   		@chart = deep_search(@keywords)
   	else
   		@chart = scrape_results(params[:search_type],@keywords)	
-  	end
+
+  end
 
 
   	@t = Time.now - tn
@@ -143,14 +144,13 @@ class SearchController < ApplicationController
   	thread_count.times.map {
   		Thread.new(@pages,chart) do |pages, chart|
   			while page = chart_mutex.synchronize { pages.pop }
-  				puts 
-
+  				puts page[0], page[1]
   				chart_element = process_page(search_type,page[0],page[1])
   				chart_mutex.synchronize { chart.merge!(chart_element) }
   			end
   		end
   	}.each(&:join)
-  	puts "finished that one"
+
 	if params[:remove_subsidiaries]
 		chart.each do |key, shipment|
 			#puts key, shipment.consignee,shipment.shipper

@@ -24,9 +24,9 @@
 			<%end%>
 			<tr>
 				<th scope="row"><a href=<%= "/collator/port_examiner#{shipment.url}" %> target ="_blank"><%="#{shipment.keyword} #{@count}" %> </a> </th>
-			<!--	<td><a href= <%= key[2] %> target="_blank"><%=key[2]%></a></td> -->
+
 				<td><%= shipment.shipper %></td>
-				<td><a href=<%="https://www.google.com/search?q=#{CGI.escape(key)}"%> target="_blank"><%= key %></a></td>
+				<td><a href=<%="https://www.google.com/search?q=#{CGI.escape(key.to_s)}"%> target="_blank"><%= key.to_s %></a></td>
 				<td><%= shipment.origin %></td>
 				<td><%= shipment.destination %></td>
 				<td><%= shipment.date %></td>
