@@ -1,0 +1,66 @@
+function searchExpand(div,keyword) {
+  var xhttp = new XMLHttpRequest();
+  var shipment_records;
+  var target = document.getElementById(`tr${div}`);
+  var index = target.rowIndex;
+  console.log(index);
+  var table = document.getElementById("shipment_table");
+  var shipper = table.rows.item(index-1).cells.item(1).innerHTML;
+  console.log(shipper);
+  xhttp.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+     shipment_records = JSON.parse(this.responseText);
+     console.log(shipment_records);
+    	
+    shipment_records.forEach(function(shipment) {
+    	var attributes = ["shipper","consignee","origin","destination","date"];
+
+      var row = table.insertRow(index)
+
+
+
+      keyword_cell = row.insertCell(0);
+      keyword_cell.innerHTML = `${keyword} expansion`;
+    	var row_index = 1
+      attributes.forEach(function(attr) {
+    		//console.log(shipment[attr]);
+        var cell = row.insertCell(row_index);
+        if (attr == "consignee") {
+          var google_link = document.createElement('a');
+          var link_text = document.createTextNode(shipment[attr]);
+          google_link.appendChild(link_text);
+          google_link.title = shipment[attr];
+          google_link.href = `https://www.google.com/search?q=${encodeURI(shipment[attr])}`
+          cell.appendChild(google_link);
+        } else {
+          cell.innerHTML = shipment[attr];  
+        }
+        	
+        row_index += 1;
+ 			
+ 			});
+      var deep_search_button_cell = row.insertCell(row_index)
+      var deep_search_button = document.createElement("button")
+      deep_search_button.innerHTML = "Deep Search"
+    	console.log(index);
+      console.log(shipper);
+   		
+      });
+      target.parentNode.removeChild(target);
+   	}
+  };
+  //xhttp.open("GET", `?&search_type=consignee&keywords=${keyword}&expand=true&commit=Search`, true);
+  var search_id = window.location.pathname.split("/")[3];
+
+  xhttp.open("GET", `expand?&search_type=consignee&keywords=${keyword}&shipper=${shipper}&search_id=${search_id}&expand=true&commit=Search`, true);
+  console.log(window.location.pathname);
+  xhttp.send();
+
+
+}
+
+function runAllDeepSearch() {
+  var buttons = document.getElementsByName('graphSearchButtons');
+  for(var i = 0; i <= buttons.length; i++)
+    buttons[i].click();
+}

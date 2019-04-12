@@ -1,6 +1,9 @@
+require 'sidekiq/web'
 Rails.application.routes.draw do
+mount Sidekiq::Web => '/sidkiq'
 scope "collator" do
 
+  get 'search_around', to: 'search#search_around', as: 'search_around' 
   get 'search/hello'
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
@@ -8,8 +11,10 @@ scope "collator" do
   # You can have the root of your site routed with "root"
 #   mount RailsProxy.new => '/perails/'
    root 'search#index'
-
+   get 'search/expand' => 'search#expand'
    get 'search' => 'search#search'
+   get 'search/:search_id' => 'search#show' 
+   get 'expand/:search_id' => 'search#expand'
 
    get 'port_examiner/' => 'snakes#index' 
    get 'port_examiner/*all' => 'snakes#index' 

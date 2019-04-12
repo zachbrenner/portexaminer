@@ -1,45 +1,125 @@
 require 'open-uri'
 require 'thread'
 require 'csv'
+require 'json'
 class SearchController < ApplicationController
-	Shipment = Struct.new(:keyword, :count,:url, :shipper, :consignee, :origin, :destination, :date)
+	Shipments = Struct.new(:keyword, :count,:url, :shipper, :consignee, :origin, :destination, :date)
   def index
-  	
   end
-  def search
-  	tn = Time.now
-  	@keywords = params[:keywords].split(",").reverse
-	puts params
-	@remove_subs_was_checked = false
-	@removed_subsidiaries = false
-	if params[:remove_subsidiaries]
-		@remove_subs_was_checked = true
-	else
-		@remove_subs_was_checked = false
-	end
-	puts "Searching for #{@keywords}"
-  	
-  	
-  	if params[:deep_search]
-  		@chart = deep_search(@keywords)
-  	else
-  		@chart = scrape_results(params[:search_type],@keywords)	
+/ if need to save something, do this to save performance
+  product = Product.first
+  product.save if product.changed?
+/
+
+  def show
+    @search_status = ''
+    @used_keywords = []
+    @status_code = 0
+    search = Search.find(params[:search_id])
+    puts "this is the search"
+    p search
+    @shipment_records = search.shipments
+    @csv = Time.now.usec.to_s
+
+   # @keywords = Search.find(@search_id).keywords.to_a
+   # @keywords.each { |keyword| Keyword.find_by(keyword:keyword) ? @used_keywords.push(keyword) : false }
+
+    #sleep 4
+    if search.done == true
+      @search_status = "Search in Progress"
+      @status_code = 1
+      @csv = Time.now.usec.to_s
+      generate_csv(search, @csv)
+      p @csv
+    end
 
   end
+ 
+  def expand
+
+    @keywords = [params[:keywords]]
+    logger.info "Expand keywords: #{@keywords}"
+    shipper_search = Search.create(keywords:@keywords, done:false)
+    SearchWorker.new.perform(shipper_search.id,"consignee",false,@keywords,false)
+    puts "shipper search.shipments"
+    p "#{shipper_search.shipments.count}"
+    shippers = shipper_search.shipments.pluck(:shipper)
+
+    logger.info "shipper keywords: #{shippers}"
+    logger.info "original shipper: #{params[:shipper]}"
+    shippers.delete(params[:shipper])
+
+    consignee_search = Search.create(keywords:shippers, done:false)
+    SearchWorker.new.perform(consignee_search.id,"shipper",false,shippers,false)
+    
+    
+    @shipment_records_json = consignee_search.shipments.to_json
+    render :json => @shipment_records_json
+
+  end
+
+  def remove_existing_results(search_id, expand_search_id)
+    existing_results = Shipment.where(qid:search_id)
+    expand_results = Shipment.where(qid:expand_search_id)
+    new_result_id = []
+    expand_results.each do |shipment|
+
+    end
+    puts "******** remove_existing results ******** existing, expand and new lengths: #{existing_results.length} #{expand_results.length} #{new_results.length}"
+    expand_results.each do |record|
+      puts record
+      p record
+    end
+  end
+
+  def search
+  	tn = Time.now
+    puts "keywords #{params[:keywords]}"
+    p params[:keywords]
+  	@keywords = params[:keywords].split(",").reverse
+  	search_type = params[:search_type]
+  	remove_subsidiaries = params[:remove_subsidiaries]
+    puts params
+	  @remove_subs_was_checked = false
+	  @removed_subsidiaries = false
+	  if remove_subsidiaries
+		  @remove_subs_was_checked = true
+	  else
+		  @remove_subs_was_checked = false
+	  end
+	  logger.info "Searching for #{@keywords}"
+    
+    @chart = {}
+  	@used_keywords = []
+    @search = Search.create(keywords:@keywords, done:false)
+    @keywords.each { |keyword| Keyword.find_by(keyword:keyword) ? @used_keywords << keyword : Keyword.create(keyword:keyword) }
+
+    deep_search = params[:deep_search] ? true : false
+
+    job_id = SearchWorker.perform_async(@search.id,search_type,remove_subsidiaries,@keywords,deep_search)
+
 
 
   	@t = Time.now - tn
-	@file_name = (Time.new.strftime("%I:%M%p %m-%d-%Y-") + rand(1000..9999).to_s + ".csv")
-	generate_csv(@file_name)
+    if params[:expand] == 'true'
+      redirect_to "/collator/expand/#{@search.id}"
+    else
+      redirect_to "/collator/search/#{@search.id}"
+    end
+
   end	
 
-  def generate_csv(file_name)
-	CSV.open("#{Rails.root}/public/#{file_name}","wb") do |csv|
-		csv << ["Cosignee","Origin","Destination"] 
-		@chart.each do |consignee, shipment_set|
-			csv << [consignee, shipment_set.first.origin.to_s, shipment_set.first.destination.to_s] 
-		end
+
+
+  def generate_csv(search, file)
+    p file
+    CSV.open("#{Rails.root}/public/#{file}","wb") do |csv|
+		  csv << ["Cosignee","Origin","Destination"] 
+		  search.shipments.each do |shipment|
+			 csv << [shipment.consignee.to_s, shipment.origin.to_s, shipment.destination.to_s] 
+		  end
   	end
+    return file
   end
 
   def deep_search(keywords)
@@ -71,7 +151,7 @@ class SearchController < ApplicationController
   	end
   	page
   end
-	
+
 
 
   def process_page(search_type,keyword,page)
@@ -104,7 +184,7 @@ class SearchController < ApplicationController
 
 
 		repeat = false
-		@chart_element["#{keyword}#{@count}"] = Shipment.new(keyword,@count,title.sub!("portexaminer.com",''),company_info[0],company_info[1],origin,destination,date)
+		@chart_element["#{keyword}#{@count}"] = Shipments.new(keyword,@count,title.sub!("portexaminer.com",''),company_info[0],company_info[1],origin,destination,date)
 		
 		@count += 1
 	end

@@ -8,9 +8,11 @@ gem 'mini_portile2'
 gem 'bootstrap-sass'
 gem 'unicorn'
 gem 'rack-proxy'
+gem 'sidekiq'
 # Use sqlite3 as the database for Active Record
-gem 'sqlite3'
-#gem 'pg','0.15'
+#gem 'sqlite3'
+gem 'pg', '~> 0.15'
+gem 'dotenv-rails'
 # Use SCSS for stylesheets
 gem 'sass-rails', '~> 5.0'
 # Use Uglifier as compressor for JavaScript assets

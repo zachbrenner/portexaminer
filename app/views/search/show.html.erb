@@ -1,0 +1,70 @@
+<script type="text/javascript">
+		function sleep(ms) {
+		return new Promise(resolve => setTimeout(resolve, ms));
+		}
+
+	$(document).ready(function() { 
+		function reload() { location.reload(true); }; 
+		var status;
+		status = document.getElementById("searchStatus").value;
+		
+		if (status == 0) {
+			setTimeout(reload, 250);
+		}
+
+	});
+
+</script>
+
+<input type="hidden" id="searchStatus" name="searchStatus" value ="<%= @status_code %>" >
+<%= link_to 'Download CSV', "/collator/csv/#{@csv}" %>
+<h1>In show, <%= @search_id %> status code <%= @status_code %> </h1>
+<h4> <%= @used_keywords.any? ? "Searched previously: #{@used_keywords}" : " These words have been searched for #{@used_keywords}" %> </h4>
+	<%= @keywords %>
+<button class="btn btn-primary" type="button" name="graphSearchButtons" onclick="runAllDeepSearch();">Run All Deep Search</button>
+<table class="table" id="shipment_table">
+	<thead>
+		<tr>
+			<th scope="col">Keyword</th>
+		<!--	<th scope="col">Title</th> -->
+			<th scope="col">Shipper</th>
+			<th scope="col">Consignee</th>
+			<th scope="col">Origin</th>
+			<th scope="col">Destination</th>
+			<th scope="col">Date</th>
+			<th scope="col">Expand</th>
+
+		</tr>
+	</thead>
+	<tbody>
+		<%@count = 1; previous_keyword = "" %>
+		<% @shipment_records.each do |shipment| %>
+			<tr>
+				<th scope="row"><a href=<%= "/collator/port_examiner#{shipment.url}" %> target ="_blank"><%="#{@count}" %> </a> </th>
+
+				<td><%= shipment.shipper %></td>
+				<td><a href=<%="https://www.google.com/search?q=#{CGI.escape(shipment.consignee)}"%> target="_blank"><%= shipment.consignee %></a></td>
+				<td><%= shipment.origin %></td>
+				<td><%= shipment.destination %></td>
+				<td><%= shipment.date %></td>
+				<td><button class="btn btn-primary" type="button" name="graphSearchButtons" onclick="searchExpand(<%="'searchExpand#{@count}','#{shipment.consignee}'"%>);" data-toggle="collapse" data-target="<%="#searchExpand#{@count}"%>" aria-expanded="false" aria-controls="searchExpand" >Deep Search</button></td>
+				</tr>
+
+				<tr id="<%= "trsearchExpand#{@count}" %>" >
+					<td id="<%= "tdsearchExpand#{@count}" %>" >
+						<div class="collapse" id=<%="searchExpand#{@count}"%> >
+						<div class="card card-body">
+						<%= image_tag("ajax-loader.gif", class: "img-responsive") %>
+						</div>
+					</td>
+				</tr>
+		
+
+			<% @count +=1 %>
+
+		<% end %>
+
+
+	</tbody>
+</table>
+

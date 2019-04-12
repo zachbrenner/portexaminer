@@ -1,0 +1,8 @@
+Notes
+
+fix first pass of graph search finding anything
+
+to do
+	Make expand render deep search buttons
+	Make expand results associate with original search?
+	Implement users and saved searches

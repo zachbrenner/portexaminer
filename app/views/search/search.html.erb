@@ -1,4 +1,7 @@
-<%= link_to 'Download CSV', "/collator/#{@file_name}" %>
+
+<h1><%=@search_id%></h1>
+<%= link_to 'Download CSV', "/collator/#{@csv}" %>
+<%= @csv %>
 <p>Searched for <%= "#{@keywords.join(", ")} in #{@t} seconds" %></p>
 <p><%= "Subsidiaries were found and removed" if @removed_subsidiaries %></p>
 <p><%= "No subsidiaries were found" if not @removed_subsidiaries %></p>
@@ -7,6 +10,7 @@
 		<tr>
 			<th scope="col">Keyword</th>
 		<!--	<th scope="col">Title</th> -->
+			<th scope="col">Expand</th>
 			<th scope="col">Shipper</th>
 			<th scope="col">Cosignee</th>
 			<th scope="col">Origin</th>
@@ -24,7 +28,7 @@
 			<%end%>
 			<tr>
 				<th scope="row"><a href=<%= "/collator/port_examiner#{shipment.url}" %> target ="_blank"><%="#{shipment.keyword} #{@count}" %> </a> </th>
-
+				<td>button</td>
 				<td><%= shipment.shipper %></td>
 				<td><a href=<%="https://www.google.com/search?q=#{CGI.escape(key.to_s)}"%> target="_blank"><%= key.to_s %></a></td>
 				<td><%= shipment.origin %></td>

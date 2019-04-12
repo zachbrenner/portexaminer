@@ -1,0 +1,19 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  keywords: MyString
+  url: MyText
+  shipper: MyString
+  consignee: MyString
+  origin: MyString
+  destination: MyString
+  date: MyString
+
+two:
+  keywords: MyString
+  url: MyText
+  shipper: MyString
+  consignee: MyString
+  origin: MyString
+  destination: MyString
+  date: MyString

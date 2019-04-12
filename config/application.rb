@@ -22,5 +22,29 @@ module Portexaminer
 
     # Do not swallow errors in after_commit/after_rollback callbacks.
     config.active_record.raise_in_transactional_callbacks = true
+    config.active_job.queue_adapter = :sidekiq
+    config.i18n.default_locale = :en
+    config.i18n.available_locales = [:en]
+    config.i18n.enforce_available_locales = true
+    require 'i18n/backend/fallbacks'
+    I18n::Backend::Simple.send(:include, I18n::Backend::Fallbacks)
+    I18n.fallbacks[:en] = [:en, :ja, :'zh-CN']
+    I18n.fallbacks[:ja] = [:ja, :en, :'zh-CN']
+    I18n.fallbacks[:'zh-CN'] = [:'zh-CN', :ja, :en]
   end
 end
+
+module I18n
+  module JS
+    def self.translations
+     ::I18n::Backend::Simple.new.instance_eval do
+        init_translations unless initialized?
+        Private::HashWithSymbolKeys.new(translations)
+                                   .slice(*::I18n.available_locales)
+                                   .to_h
+      end
+    end
+  end
+end
+
+    
