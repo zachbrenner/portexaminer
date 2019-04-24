@@ -3,6 +3,7 @@ require 'thread'
 require 'csv'
 require 'json'
 class SearchController < ApplicationController
+  include SearchHelper
 	Shipments = Struct.new(:keyword, :count,:url, :shipper, :consignee, :origin, :destination, :date)
   def index
   end
@@ -12,24 +13,20 @@ class SearchController < ApplicationController
 /
 
   def show
+    logger.info "in SearchController/show"
     @search_status = ''
     @used_keywords = []
+    @keyword_ids = []
     @status_code = 0
     search = Search.find(params[:search_id])
-    puts "this is the search"
-    p search
-    @shipment_records = search.shipments
+    @shipment_records = get_shipments_from_search(search.id)
     @csv = Time.now.usec.to_s
 
-   # @keywords = Search.find(@search_id).keywords.to_a
-   # @keywords.each { |keyword| Keyword.find_by(keyword:keyword) ? @used_keywords.push(keyword) : false }
-
-    #sleep 4
     if search.done == true
       @search_status = "Search in Progress"
       @status_code = 1
       @csv = Time.now.usec.to_s
-      generate_csv(search, @csv)
+      #generate_csv(search, @csv)
       p @csv
     end
 
@@ -39,21 +36,18 @@ class SearchController < ApplicationController
 
     @keywords = [params[:keywords]]
     logger.info "Expand keywords: #{@keywords}"
-    shipper_search = Search.create(keywords:@keywords, done:false)
+    shipper_search = Search.create(done:false)
     SearchWorker.new.perform(shipper_search.id,"consignee",false,@keywords,false)
-    puts "shipper search.shipments"
-    p "#{shipper_search.shipments.count}"
-    shippers = shipper_search.shipments.pluck(:shipper)
-
-    logger.info "shipper keywords: #{shippers}"
-    logger.info "original shipper: #{params[:shipper]}"
+    
+    shippers = get_shipments_from_search(shipper_search.id).map(&:shipper)
+    logger.info "Found these shippers #{shippers}"
     shippers.delete(params[:shipper])
 
-    consignee_search = Search.create(keywords:shippers, done:false)
+    consignee_search = Search.create(done:false)
     SearchWorker.new.perform(consignee_search.id,"shipper",false,shippers,false)
     
     
-    @shipment_records_json = consignee_search.shipments.to_json
+    @shipment_records_json = get_shipments_from_search(consignee_search.id).to_json
     render :json => @shipment_records_json
 
   end
@@ -91,22 +85,22 @@ class SearchController < ApplicationController
     
     @chart = {}
   	@used_keywords = []
-    @search = Search.create(keywords:@keywords, done:false)
-    @keywords.each { |keyword| Keyword.find_by(keyword:keyword) ? @used_keywords << keyword : Keyword.create(keyword:keyword) }
+    @search = Search.create(done:false)
 
     deep_search = params[:deep_search] ? true : false
 
     job_id = SearchWorker.perform_async(@search.id,search_type,remove_subsidiaries,@keywords,deep_search)
 
 
-
+    sleep 2
   	@t = Time.now - tn
+  
     if params[:expand] == 'true'
       redirect_to "/collator/expand/#{@search.id}"
     else
       redirect_to "/collator/search/#{@search.id}"
     end
-
+    
   end	
 
 

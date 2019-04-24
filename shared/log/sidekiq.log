@@ -1,0 +1,76 @@
+# Logfile created on 2019-04-24 14:47:03 -0400 by logger.rb/v1.2.7
+**************************************************
+⛔️ WARNING: Sidekiq testing API enabled, but this is not the test environment.  Your jobs will not go to Redis.
+**************************************************
+2019-04-24T18:47:04.873Z 32180 TID-4cin8 INFO: Running in ruby 2.3.1p112 (2016-04-26) [x86_64-linux-gnu]
+2019-04-24T18:47:04.873Z 32180 TID-4cin8 INFO: See LICENSE and the LGPL-3.0 for licensing details.
+2019-04-24T18:47:04.873Z 32180 TID-4cin8 INFO: Upgrade to Sidekiq Pro for more features and support: http://sidekiq.org
+2019-04-24T18:47:04.873Z 32180 TID-4cin8 INFO: Booting Sidekiq 5.2.1 with redis options {:id=>"Sidekiq-server-PID-32180", :url=>nil}
+2019-04-24T18:47:16.202Z 32180 TID-hk8ic INFO: worker started
+2019-04-24T18:47:16.202Z 32180 TID-hk8ic INFO: search id: 1
+The PGconn, PGresult, and PGError constants are deprecated, and will be
+removed as of version 1.0.
+
+You should use PG::Connection, PG::Result, and PG::Error instead, respectively.
+
+Called from /usr/lib/ruby/vendor_ruby/active_support/dependencies.rb:240:in `load_dependency'
+2019-04-24T18:47:16.255Z 32180 TID-hk8ic ERROR: Couldn't find Search with 'id'=1
+2019-04-24T18:47:16.256Z 32180 TID-hk8ic WARN: ActiveRecord::RecordNotFound: Couldn't find Search with 'id'=1
+2019-04-24T18:47:16.256Z 32180 TID-hk8ic WARN: /usr/lib/ruby/vendor_ruby/active_record/core.rb:155:in `find'
+/home/zach/Code/portexaminer/app/workers/search_worker.rb:13:in `perform'
+/var/lib/gems/2.3.0/gems/sidekiq-5.2.1/lib/sidekiq/testing.rb:301:in `execute_job'
+/var/lib/gems/2.3.0/gems/sidekiq-5.2.1/lib/sidekiq/testing.rb:296:in `block in process_job'
+/var/lib/gems/2.3.0/gems/sidekiq-5.2.1/lib/sidekiq/middleware/chain.rb:128:in `block in invoke'
+/var/lib/gems/2.3.0/gems/sidekiq-5.2.1/lib/sidekiq/middleware/chain.rb:133:in `invoke'
+/var/lib/gems/2.3.0/gems/sidekiq-5.2.1/lib/sidekiq/testing.rb:295:in `process_job'
+/var/lib/gems/2.3.0/gems/sidekiq-5.2.1/lib/sidekiq/testing.rb:89:in `block in raw_push'
+/var/lib/gems/2.3.0/gems/sidekiq-5.2.1/lib/sidekiq/testing.rb:85:in `each'
+/var/lib/gems/2.3.0/gems/sidekiq-5.2.1/lib/sidekiq/testing.rb:85:in `raw_push'
+/var/lib/gems/2.3.0/gems/sidekiq-5.2.1/lib/sidekiq/client.rb:74:in `push'
+/var/lib/gems/2.3.0/gems/sidekiq-5.2.1/lib/sidekiq/client.rb:132:in `push'
+/var/lib/gems/2.3.0/gems/sidekiq-5.2.1/lib/sidekiq/scheduled.rb:26:in `block (2 levels) in enqueue_jobs'
+/var/lib/gems/2.3.0/gems/sidekiq-5.2.1/lib/sidekiq/scheduled.rb:15:in `each'
+/var/lib/gems/2.3.0/gems/sidekiq-5.2.1/lib/sidekiq/scheduled.rb:15:in `block in enqueue_jobs'
+/var/lib/gems/2.3.0/gems/sidekiq-5.2.1/lib/sidekiq.rb:95:in `block in redis'
+/var/lib/gems/2.3.0/gems/connection_pool-2.2.2/lib/connection_pool.rb:65:in `block (2 levels) in with'
+/var/lib/gems/2.3.0/gems/connection_pool-2.2.2/lib/connection_pool.rb:64:in `handle_interrupt'
+/var/lib/gems/2.3.0/gems/connection_pool-2.2.2/lib/connection_pool.rb:64:in `block in with'
+/var/lib/gems/2.3.0/gems/connection_pool-2.2.2/lib/connection_pool.rb:61:in `handle_interrupt'
+/var/lib/gems/2.3.0/gems/connection_pool-2.2.2/lib/connection_pool.rb:61:in `with'
+/var/lib/gems/2.3.0/gems/sidekiq-5.2.1/lib/sidekiq.rb:92:in `redis'
+/var/lib/gems/2.3.0/gems/sidekiq-5.2.1/lib/sidekiq/scheduled.rb:14:in `enqueue_jobs'
+/var/lib/gems/2.3.0/gems/sidekiq-5.2.1/lib/sidekiq/scheduled.rb:77:in `enqueue'
+/var/lib/gems/2.3.0/gems/sidekiq-5.2.1/lib/sidekiq/scheduled.rb:68:in `block in start'
+/var/lib/gems/2.3.0/gems/sidekiq-5.2.1/lib/sidekiq/util.rb:16:in `watchdog'
+/var/lib/gems/2.3.0/gems/sidekiq-5.2.1/lib/sidekiq/util.rb:25:in `block in safe_thread'
+2019-04-24T18:52:24.757Z 32180 TID-hhe6w SearchWorker JID-bd7632c82f40373fbda1c8d7 INFO: start
+2019-04-24T18:52:24.757Z 32180 TID-hhe6w SearchWorker JID-bd7632c82f40373fbda1c8d7 INFO: worker started
+2019-04-24T18:52:24.758Z 32180 TID-hhe6w SearchWorker JID-bd7632c82f40373fbda1c8d7 INFO: search id: 151
+["bmw"]
+2019-04-24T18:52:24.774Z 32180 TID-hhe6w SearchWorker JID-bd7632c82f40373fbda1c8d7 INFO: In process_keywords
+2019-04-24T18:52:24.789Z 32180 TID-hhe6w SearchWorker JID-bd7632c82f40373fbda1c8d7 INFO: Keyword has already been searched: Associating keyword: bmw with search id: 151
+["bmw"]
+2019-04-24T18:52:24.799Z 32180 TID-hhe6w SearchWorker JID-bd7632c82f40373fbda1c8d7 INFO: done: 0.042 sec
+2019-04-24T18:54:00.809Z 32180 TID-hheig SearchWorker JID-3156beb16bf683d4aa9ff59e INFO: start
+2019-04-24T18:54:00.809Z 32180 TID-hheig SearchWorker JID-3156beb16bf683d4aa9ff59e INFO: worker started
+2019-04-24T18:54:00.809Z 32180 TID-hheig SearchWorker JID-3156beb16bf683d4aa9ff59e INFO: search id: 152
+["general"]
+2019-04-24T18:54:00.813Z 32180 TID-hheig SearchWorker JID-3156beb16bf683d4aa9ff59e INFO: In process_keywords
+2019-04-24T18:54:00.817Z 32180 TID-hheig SearchWorker JID-3156beb16bf683d4aa9ff59e INFO: Creating new keyword record: general shipper
+2019-04-24T18:54:00.863Z 32180 TID-hheig SearchWorker JID-3156beb16bf683d4aa9ff59e INFO: created keyword record: #<Keyword:0x000000018dfc38>
+searching for general 
+2019-04-24T18:54:01.115Z 32180 TID-hheig SearchWorker JID-3156beb16bf683d4aa9ff59e INFO: Starting to get pages
+2019-04-24T18:54:01.254Z 32180 TID-k9hws INFO: got page 1 for 
+2019-04-24T18:54:01.255Z 32180 TID-hheig SearchWorker JID-3156beb16bf683d4aa9ff59e INFO: fined getting pages
+2019-04-24T18:54:01.256Z 32180 TID-hheig SearchWorker JID-3156beb16bf683d4aa9ff59e INFO: Got keyword data, adding to database
+2019-04-24T18:54:01.256Z 32180 TID-hheig SearchWorker JID-3156beb16bf683d4aa9ff59e INFO: In add_shipments_to_db
+["general"]
+2019-04-24T18:54:01.273Z 32180 TID-hheig SearchWorker JID-3156beb16bf683d4aa9ff59e INFO: done: 0.464 sec
+2019-04-24T18:55:54.713Z 32180 TID-hk9j0 SearchWorker JID-e2409b72822e62b282427671 INFO: start
+2019-04-24T18:55:54.713Z 32180 TID-hk9j0 SearchWorker JID-e2409b72822e62b282427671 INFO: worker started
+2019-04-24T18:55:54.713Z 32180 TID-hk9j0 SearchWorker JID-e2409b72822e62b282427671 INFO: search id: 153
+["general"]
+2019-04-24T18:55:54.715Z 32180 TID-hk9j0 SearchWorker JID-e2409b72822e62b282427671 INFO: In process_keywords
+2019-04-24T18:55:54.717Z 32180 TID-hk9j0 SearchWorker JID-e2409b72822e62b282427671 INFO: Keyword has already been searched: Associating keyword: general with search id: 153
+["general"]
+2019-04-24T18:55:54.721Z 32180 TID-hk9j0 SearchWorker JID-e2409b72822e62b282427671 INFO: done: 0.008 sec

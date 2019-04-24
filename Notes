@@ -2,7 +2,20 @@ Notes
 
 fix first pass of graph search finding anything
 
+
 to do
 	Make expand render deep search buttons
 	Make expand results associate with original search?
 	Implement users and saved searches
+
+	postgres password
+	Tempus123
+
+	need to figure out what's going on assets
+
+
+	changes for "newcollator" to work
+	changed collator/ path in redirect in search controller
+	changed collator/ path in application view
+
+	look into bad gateway on deep search expand

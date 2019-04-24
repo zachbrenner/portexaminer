@@ -4,6 +4,7 @@ require 'open-uri'
 require 'thread'
 class SearchWorker
   include Sidekiq::Worker
+  include SearchHelper 
   Shipments = Struct.new(:keyword, :count,:url, :shipper, :consignee, :origin, :destination, :date)
 
   def perform(search_id,search_type,remove_subs,keywords,deep_search)
@@ -11,9 +12,35 @@ class SearchWorker
     logger.info "search id: #{search_id}"
   	@search = Search.find(search_id)
     @job_id = self.jid
-  	logger.info "In worker"
-    insert_in_db(scrape_results(search_type,remove_subs,keywords))
+    p keywords
+    keywords = remove_whitespace(keywords)
+    process_keywords(keywords,search_id, search_type,remove_subs)
+    @search.update(done:true)
 
+    p keywords
+
+
+  end
+
+  def process_keywords(keywords,search_id, search_type, remove_subs)
+    logger.info "In process_keywords"
+    search = Search.find(search_id)
+    keywords.each do |keyword|
+      logger.info "keyword has been searched: #{Keyword.where(keyword:keyword,search_type:search_type).exists?} "
+      if Keyword.where(keyword:keyword,search_type:search_type).exists?
+        keyword_record = Keyword.where(keyword:keyword,search_type:search_type).first
+        logger.info "Keyword has already been searched: Associating keyword: #{keyword} with search id: #{search_id}"
+        SearchKeyword.create(keyword_id:keyword_record.id,search_id:search_id)
+      else
+        logger.info "Creating new keyword record: #{keyword} #{search_type}"
+        new_keyword_record = search.keywords.create(keyword:keyword, search_type:search_type)
+        logger.info "created keyword record: #{Keyword.find_by_id(new_keyword_record.id)}"
+        logger.info "running keyword #{keyword}"
+        keyword_shipments = build_keyword_results(keyword,search_type,remove_subs)
+        logger.info "Got keyword data, adding to database"
+        add_shipments_to_db(keyword_shipments,new_keyword_record.id)
+      end
+    end
   end
   
   def get_page(url)
@@ -53,10 +80,11 @@ class SearchWorker
 
   def process_page(search_type,keyword,page)
   	@chart_element = {}
+    @count = 1
   	doc = get_page("https://portexaminer.com/search.php?search-field-1=#{search_type}&search-term-1=#{keyword}&p=#{page}")
     return Shipments.new if doc == nil
     logger.info "got page #{page} for #{keyword}"
-	doc.css("div[class=search-item]").each do |item|
+    doc.css("div[class=search-item]").each do |item|
 		blurb = item.css('div.blurb').children.text
 		excluded_countries = ["China","India","Hong Kong","Singapore","Goose Island","South Korea","Virgin Islands","Asia","Panama"]
 		next if excluded_countries.any? { |country| blurb.include?(country)}
@@ -90,74 +118,62 @@ class SearchWorker
 	@chart_element
   end
 
-
-  def scrape_results(search_type,remove_subs,keywords)
-  	chart = {}
-  	@count = 1
-  	@pages = []
-  	threads = []
-  	chart_mutex = Mutex.new
-
-  	results = keywords.each do |word|
-  		puts "searching for #{search_type} #{word}"
-  		@count = 1
-  		keyword = word.dup
-  		keyword.strip!
-      url = "https://portexaminer.com/search.php?search-field-1=#{search_type}&search-term-1=#{keyword}"
-      doc = get_page(url)
-		  @pages << [keyword,1]
-	#	puts "Got first page and page  for #{keyword}"
-		#puts doc.css("div[class=search-item]").css("div[class=blurb]")
-		#process_page(keyword, doc)
-		  number_of_pages = doc.css("div[id=search-results]").xpath("//div").xpath("//p")[0]
-		  number_of_pages = number_of_pages != nil ? number_of_pages.text.split(" ").last.to_i : 0
-		  if number_of_pages != 0
-			 (2..number_of_pages).each do |page|
-			 	 @pages << [keyword,page]
-			 end
-		  end
-  	end
-
-  	logger.info "Starting to get pages"
-  	thread_count = 8
-  	thread_count.times.map {
-  		Thread.new(@pages,chart) do |pages, chart|
-  			while page = chart_mutex.synchronize { pages.pop }
-  				chart_element = process_page(search_type,page[0],page[1])
-  				chart_mutex.synchronize { chart.merge!(chart_element) }
-  			end
-  		end
-  	}.each(&:join)
-  	logger.info "fined getting pages"
-	if remove_subs
-		chart.each do |key, shipment|
-			#puts key, shipment.consignee,shipment.shipper
+ def build_keyword_results(keyword,search_type,remove_subs)
+    chart = {}
+    threads = []
+    chart_mutex = Mutex.new
+    puts "searching for #{search_type} #{keyword}"
+    url = "https://portexaminer.com/search.php?search-field-1=#{search_type}&search-term-1=#{keyword}"
+    doc = get_page(url)
+    p keyword
+    @pages = build_pagination_array(keyword,doc)
+    p @pages
+    logger.info "Starting to get pages"
+    thread_count = 8
+    thread_count.times.map {
+      Thread.new(@pages,chart) do |pages, chart|
+        while page = chart_mutex.synchronize { pages.pop }
+          chart_element = process_page(search_type,page[0],page[1])
+          chart_mutex.synchronize { chart.merge!(chart_element) }
+        end
+      end
+    }.each(&:join)
+    logger.info "fined getting pages"
+  if remove_subs
+    chart.each do |key, shipment|
+      #puts key, shipment.consignee,shipment.shipper
       shipper_first_word = shipment.shipper.split[0]
-			consignee_first_word = shipment.consignee.split[0]
-			if shipper_first_word.include? consignee_first_word
-				chart.delete(key)
-				@removed_subsidiaries = true
-			end
-		end
-	end
+      consignee_first_word = shipment.consignee.split[0]
+      if shipper_first_word.include? consignee_first_word
+        chart.delete(key)
+        @removed_subsidiaries = true
+      end
+    end
+  end
 
-  	shipments_by_consignees = Hash.new { |hsh, key| hsh[key] = Set.new }
-  	chart.each_value do |shipment|
-  		shipments_by_consignees[shipment.consignee].add(shipment)
-  	end
+    shipments_by_consignees = Hash.new { |hsh, key| hsh[key] = Set.new }
+    chart.each_value do |shipment|
+      shipments_by_consignees[shipment.consignee].add(shipment)
+      logger.info "#{shipment}"
+    end
 
   shipments_by_consignees
 
   end
 
-  def insert_in_db(shipments_by_consignees)
-    
+ 
+
+  def add_shipments_to_db(shipments_by_consignees, keyword_id)
+    logger.info "In add_shipments_to_db"
     shipments_by_consignees.each do |key, shipment_set|
-      t = Time.now
       shipment = shipment_set.first
-      puts Time.now - t
-      p @search
-      shipment_record = @search.shipments.build(url:shipment.url, shipper:shipment.shipper, consignee:shipment.consignee, origin:shipment.origin, destination:shipment.destination, date:shipment.date)
+
+      keyword = Keyword.find(keyword_id)
+
+      logger.info "assigning shipment to keyword: #{keyword.keyword}"
+      shipment_record = keyword.shipments.build(url:shipment.url, shipper:shipment.shipper, consignee:shipment.consignee, origin:shipment.origin, destination:shipment.destination, date:shipment.date)
+      shipment_record.save
+     / if nil
       puts "AAAAAAAAAAAAAAAA"
       puts shipment_record.valid?
       if shipment_record.valid?
@@ -167,16 +183,10 @@ class SearchWorker
         p shipment_record
         puts "search:"
         p Search.find(@search.id).shipments
-
-      else
-        puts "already in db, making a reference to this search"
-        existing_record = Shipment.find_by_consignee(shipment.consignee)
-        puts "updating join table"
-        p SearchShipment.create(search_id:@search.id, shipment_id:existing_record.id)
-            
       end
+    end/
     end
-    Search.find(@search.id).update(done:true)
   end
 
 end
+

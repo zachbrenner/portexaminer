@@ -2146,3 +2146,23 @@ I, [2018-07-25T15:54:47.334864 #5539]  INFO -- : worker=0 ready
 127.0.0.1 - - [09/Aug/2018:13:18:07 +0000] "GET /port_examiner/js/script.js HTTP/1.0" 422 120253 0.2926
 127.0.0.1 - - [09/Aug/2018:13:18:16 +0000] "GET /search?utf8=%E2%9C%93&keywords=Esterer+Wd+Gmbh&commit=Search HTTP/1.0" 200 - 0.2548
 127.0.0.1 - - [09/Aug/2018:13:18:18 +0000] "GET /port_examiner/search.php?search-field-1=consignee&search-term-1=Hancock+Lumber HTTP/1.0" 200 - 0.1198
+/var/lib/gems/2.3.0/gems/unicorn-5.4.0/lib/unicorn/http_server.rb:205:in `pid=': Already running on PID:2087 (or pid=/home/zach/Code/portexaminer/shared/pids/unicorn.pid is stale) (ArgumentError)
+	from /var/lib/gems/2.3.0/gems/unicorn-5.4.0/lib/unicorn/http_server.rb:137:in `start'
+	from /var/lib/gems/2.3.0/gems/unicorn-5.4.0/bin/unicorn:126:in `<top (required)>'
+	from /usr/local/bin/unicorn:23:in `load'
+	from /usr/local/bin/unicorn:23:in `<main>'
+/var/lib/gems/2.3.0/gems/unicorn-5.4.0/lib/unicorn/http_server.rb:205:in `pid=': Already running on PID:2087 (or pid=/home/zach/Code/portexaminer/shared/pids/unicorn.pid is stale) (ArgumentError)
+	from /var/lib/gems/2.3.0/gems/unicorn-5.4.0/lib/unicorn/http_server.rb:137:in `start'
+	from /var/lib/gems/2.3.0/gems/unicorn-5.4.0/bin/unicorn:126:in `<top (required)>'
+	from /usr/local/bin/unicorn:23:in `load'
+	from /usr/local/bin/unicorn:23:in `<main>'
+/var/lib/gems/2.3.0/gems/unicorn-5.4.0/lib/unicorn/http_server.rb:205:in `pid=': Already running on PID:2087 (or pid=/home/zach/Code/portexaminer/shared/pids/unicorn.pid is stale) (ArgumentError)
+	from /var/lib/gems/2.3.0/gems/unicorn-5.4.0/lib/unicorn/http_server.rb:137:in `start'
+	from /var/lib/gems/2.3.0/gems/unicorn-5.4.0/bin/unicorn:126:in `<top (required)>'
+	from /usr/local/bin/unicorn:23:in `load'
+	from /usr/local/bin/unicorn:23:in `<main>'
+/var/lib/gems/2.3.0/gems/unicorn-5.4.0/lib/unicorn/http_server.rb:205:in `pid=': Already running on PID:2087 (or pid=/home/zach/Code/portexaminer/shared/pids/unicorn.pid is stale) (ArgumentError)
+	from /var/lib/gems/2.3.0/gems/unicorn-5.4.0/lib/unicorn/http_server.rb:137:in `start'
+	from /var/lib/gems/2.3.0/gems/unicorn-5.4.0/bin/unicorn:126:in `<top (required)>'
+	from /usr/local/bin/unicorn:23:in `load'
+	from /usr/local/bin/unicorn:23:in `<main>'

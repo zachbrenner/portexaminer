@@ -11,22 +11,22 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20190411215214) do
+ActiveRecord::Schema.define(version: 20190424141207) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
   create_table "keywords", force: :cascade do |t|
     t.string "keyword"
+    t.string "search_type"
   end
 
-  create_table "search_shipments", force: :cascade do |t|
-    t.integer "search_id",   null: false
-    t.integer "shipment_id", null: false
+  create_table "search_keywords", force: :cascade do |t|
+    t.integer "search_id",  null: false
+    t.integer "keyword_id"
   end
 
   create_table "searches", force: :cascade do |t|
-    t.string   "keywords"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.boolean  "done"
@@ -41,6 +41,7 @@ ActiveRecord::Schema.define(version: 20190411215214) do
     t.string   "date"
     t.datetime "created_at",  null: false
     t.datetime "updated_at",  null: false
+    t.string   "keyword_id"
   end
 
 end
