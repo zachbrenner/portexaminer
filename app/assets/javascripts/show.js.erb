@@ -66,8 +66,9 @@ function searchExpand(div,keyword) {
 
 function runAllDeepSearch() {
   var buttons = document.getElementsByName('graphSearchButtons');
-  buttons.forEach(function(button) {
+   buttons.forEach(function(button) {
     button.click();
+    await sleep(200);
   });
 }
 
