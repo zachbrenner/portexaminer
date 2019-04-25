@@ -17,7 +17,7 @@
 </script>
 
 <input type="hidden" id="searchStatus" name="searchStatus" value ="<%= @status_code %>" >
-<%= link_to 'Download CSV', "/collator/csv/#{@csv}" %>
+<button class="btn btn-danger" type="button" name="generateCSV" onclick="generateCSV();" data-toggle="collapse" data-target="generateCSV" aria-expanded="false" aria-controls="searchExpand"> Download CSV</button>
 <h1>In show, <%= @search_id %> status code <%= @status_code %> </h1>
 <h4> <%= @used_keywords.any? ? "Searched previously: #{@used_keywords}" : " These words have been searched for #{@used_keywords}" %> </h4>
 	<%= @keywords %>
@@ -41,7 +41,7 @@
 		<% @shipment_records.each do |shipment| %>
 			<tr>
 				<th scope="row"><a href=<%= "/collator/port_examiner#{shipment.url}" %> target ="_blank"><%="#{@count}" %> </a> </th>
-
+				<input type="hidden" name="keyword_id" id="<%= shipment.keyword_id %>" >
 				<td><%= shipment.shipper %></td>
 				<td><a href=<%="https://www.google.com/search?q=#{CGI.escape(shipment.consignee)}"%> target="_blank"><%= shipment.consignee %></a></td>
 				<td><%= shipment.origin %></td>

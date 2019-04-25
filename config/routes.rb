@@ -11,6 +11,8 @@ scope "collator" do
   # You can have the root of your site routed with "root"
 #   mount RailsProxy.new => '/perails/'
    root 'search#index'
+   get 'search/csv' => 'search#generate_csv'
+
    get 'search/expand' => 'search#expand'
    get 'search' => 'search#search'
    get 'search/:search_id' => 'search#show' 

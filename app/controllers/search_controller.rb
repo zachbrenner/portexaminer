@@ -35,6 +35,7 @@ class SearchController < ApplicationController
   def expand
 
     @keywords = [params[:keywords]]
+    original_search_id = params[:search_id]
     logger.info "Expand keywords: #{@keywords}"
     shipper_search = Search.create(done:false)
     SearchWorker.new.perform(shipper_search.id,"consignee",false,@keywords,false)
@@ -46,6 +47,12 @@ class SearchController < ApplicationController
     consignee_search = Search.create(done:false)
     SearchWorker.new.perform(consignee_search.id,"shipper",false,shippers,false)
     
+    #logic for attaching expansion results to original search
+
+   # if get_shipments_from_search(consignee_search.id).exists? && !SearchKeyword.where(keyword_id:keyword_record.id,search_id:consignee_search.id).exists?
+   #   logger.info "Associating expansion with original search"
+   #   SearchKeyword.create(keyword_id:keyword_record.id,search_id:consignee_search.id)
+   # end
     
     @shipment_records_json = get_shipments_from_search(consignee_search.id).to_json
     render :json => @shipment_records_json
@@ -105,15 +112,22 @@ class SearchController < ApplicationController
 
 
 
-  def generate_csv(search, file)
-    p file
-    CSV.open("#{Rails.root}/public/#{file}","wb") do |csv|
-		  csv << ["Cosignee","Origin","Destination"] 
-		  search.shipments.each do |shipment|
-			 csv << [shipment.consignee.to_s, shipment.origin.to_s, shipment.destination.to_s] 
+
+  def generate_csv()
+    logger.info "Generating CSV #{params}"
+    keyword_ids = params.values.select { |x| x.to_i != 0 }
+    keywords = Keyword.find(keyword_ids)
+    shipments = keywords.map(&:shipments).flatten
+    file_name = keywords.map(&:keyword).flatten.join("-") + "-" + Time.now.usec.to_s
+    path = "#{Rails.root}/public/#{file_name}.csv"
+    CSV.open(path,"wb") do |csv|
+		  csv << ["Shipper","Consignee","Origin","Destination", "Date"] 
+		  shipments.map do |shipment|
+			 csv << [shipment.shipper, shipment.consignee, shipment.origin, shipment.destination, shipment.date] 
 		  end
   	end
-    return file
+    logger.info "finished writing CSV #{file_name}"
+    send_file(path, type: "application/csv", filename: file_name)
   end
 
   def deep_search(keywords)

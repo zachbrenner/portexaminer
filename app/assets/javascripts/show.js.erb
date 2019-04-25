@@ -16,7 +16,12 @@ function searchExpand(div,keyword) {
     	var attributes = ["shipper","consignee","origin","destination","date"];
 
       var row = table.insertRow(index)
+      var keyword_id_field = document.createElement('input');
+      keyword_id_field.setAttribute("type","hidden");
+      keyword_id_field.setAttribute("name","keyword_id");
+      keyword_id_field.setAttribute("id",shipment['keyword_id']);
 
+      row.appendChild(keyword_id_field);
 
 
       keyword_cell = row.insertCell(0);
@@ -61,6 +66,45 @@ function searchExpand(div,keyword) {
 
 function runAllDeepSearch() {
   var buttons = document.getElementsByName('graphSearchButtons');
-  for(var i = 0; i <= buttons.length; i++)
-    buttons[i].click();
+  buttons.forEach(function(button) {
+    button.click();
+  });
+}
+
+function generateCSV() {
+  var xhttp = new XMLHttpRequest();
+  var keyword_ids = new Set();
+  var keyword_id_fields = document.getElementsByName('keyword_id');
+  var request = ["csv?"];
+  keyword_id_fields.forEach(function(keyword_field) {
+    keyword_ids.add(keyword_field.id);
+  });
+  keyword_ids.forEach(function(id) {
+    request.push(encodeURIComponent(id) + '=' + encodeURIComponent(id));
+  });
+  console.log(request.join('&'));
+  xhttp.open("GET", request.join('&'));
+  xhttp.send();
+  xhttp.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+      console.log(this.responseText);
+      var filename = "";
+      var content_type = this.getResponseHeader('Content-Type');
+      var disposition = this.getResponseHeader('Content-Disposition');
+      if (disposition && disposition.indexOf('attachment') !== -1) {
+        var filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
+        var matches = filenameRegex.exec(disposition);
+        if (matches != null && matches[1]) { 
+          filename = matches[1].replace(/['"]/g, '');
+          filename += ".csv"
+        }
+      }
+      console.log(filename)
+      var blob = new Blob([this.responseText], {type: content_type});
+      var a = document.createElement('a');
+      a.download = filename;
+      a.href = window.URL.createObjectURL(blob);
+      a.dispatchEvent(new MouseEvent('click'));
+    }
+  };
 }
