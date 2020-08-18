@@ -23,7 +23,7 @@ ActiveRecord::Schema.define(version: 20190424141207) do
 
   create_table "search_keywords", force: :cascade do |t|
     t.integer "search_id",  null: false
-    t.integer "keyword_id"
+    t.integer "keyword_id", null: false
   end
 
   create_table "searches", force: :cascade do |t|
