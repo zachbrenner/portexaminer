@@ -74,3 +74,6 @@ searching for general
 2019-04-24T18:55:54.717Z 32180 TID-hk9j0 SearchWorker JID-e2409b72822e62b282427671 INFO: Keyword has already been searched: Associating keyword: general with search id: 153
 ["general"]
 2019-04-24T18:55:54.721Z 32180 TID-hk9j0 SearchWorker JID-e2409b72822e62b282427671 INFO: done: 0.008 sec
+2019-04-26T19:47:07.030Z 32180 TID-4cin8 INFO: Shutting down
+2019-04-26T19:47:07.030Z 32180 TID-4cin8 INFO: Terminating quiet workers
+2019-04-26T19:47:07.030Z 32180 TID-hk8ic INFO: Scheduler exiting...
