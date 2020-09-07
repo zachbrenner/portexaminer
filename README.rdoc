@@ -4,4 +4,4 @@ Overview
 
 This application takes search queries for bill of lading data provided by portexaminer.com. It returns only unique company names, instead of duplicates found on multiple bills of lading. It can handle multiple search queries at once, and is able to graph search around the results.
 
-This application uses Ruby 2.6.6, Ruby on Rails version 4.2.8, postgreSQL, Sidkiq (job scheduler/concerrency), Bootstrap, Nokogiri (html parser), and unicorn (webserver)
+This application uses Ruby 2.6.6, Ruby on Rails 4.2.8, postgreSQL, Sidkiq (job scheduler/concerrency), Bootstrap, Nokogiri (html parser), and unicorn (webserver)
